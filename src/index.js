@@ -55,6 +55,10 @@ App.prototype.addPublicRoutes = function(prefix, router, isPrivate){
 
 App.prototype.start = function(port, host, cb) {
 
+  // const Auth = Authentication.New({
+  //   session_key_public: config.get('app').session_key
+  // });
+
   this.app.use(function(req, res, next){
     req.bold.myContext.ping((msg) => {
       console.log(msg);
