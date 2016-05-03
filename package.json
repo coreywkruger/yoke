@@ -70,6 +70,7 @@
     "rimraf": "^2.4.4"
   },
   "dependencies": {
+    "@gobold/bold-require": "^4.9.0",
     "body-parser": "^1.15.0",
     "express": "^4.13.4"
   }

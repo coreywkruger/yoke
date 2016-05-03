@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const h = require('@gobold/bold-require')('helper');
+const config = h.requireConfig();
 const Authentication = require('../lib/authentication');
 const PrivateRouter = require('./private_router');
 const PublicRouter = require('./public_router');
@@ -41,14 +42,19 @@ App.prototype.registerContext = function(core, name){
 };
 
 App.prototype.start = function(port, host, cb) {
+
+  const auth = Authentication.new({
+    session_key_public: config.get('app').session_key
+  });
+
   this.app.use(function(req, res, next){
     req.bold.myContext.ping((msg) => {
-      console.log(msg)
+      console.log(msg);
       next();
     });
   });
   this.app.use('/', PublicRouter);
-  this.app.use(Authentication);
+  this.app.use(auth.authenticate);
   this.app.use('/', PrivateRouter);
   this.app.use((req, res) => {
     res.sendStatus(404);
