@@ -1,10 +1,37 @@
 {
-  "name": "pay-proxy",
+  "name": "@gobold/pay-proxy",
   "version": "1.0.0",
   "description": "Proxy to pay api",
-  "main": "index.js",
+  "access": "restricted",
   "scripts": {
-    "test": "npm test"
+    "check-coverage": "node_modules/.bin/istanbul check-coverage --statements 10 --branches 10 --functions 10 --lines 10 ./coverage/coverage.json",
+    "coverage": "NODE_ENV=test APP_ENV=test BOLD_PROCESS=api node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- --recursive --require babel-core/register",
+    "dist": "cd public; bower install --config.interactive=false --allow-root; gulp dist",
+    "pre-commit-update": "node_modules/.bin/npm-update-outdated",
+    "test": "npm run coverage",
+    "lint": "eslint --max-warnings 1065 --ext .js .",
+    "fix-lint": "eslint --fix --ext .js ."
+  },
+  "pre-commit": {
+    "silent": false,
+    "colors": true,
+    "run": [
+      "pre-commit-update",
+      "lint"
+    ]
+  },
+  "pre-push": {
+    "silent": false,
+    "colors": true,
+    "run": [
+      "lint",
+      "test",
+      "check-coverage"
+    ]
+  },
+  "main": "dist/index.js",
+  "engines": {
+    "node": "4.3.1"
   },
   "repository": {
     "type": "git",
