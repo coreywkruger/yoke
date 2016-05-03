@@ -1,0 +1,19 @@
+{
+  "name": "pay-proxy",
+  "version": "1.0.0",
+  "description": "Proxy to pay api",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/coreywkruger/pay-proxy.git"
+  },
+  "author": "Corey Kruger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/coreywkruger/pay-proxy/issues"
+  },
+  "homepage": "https://gitlab.com/coreywkruger/pay-proxy#README"
+}
