@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "@gobold/bold-require": "^4.9.0",
+    "@gobold/session": "^1.0.2",
     "body-parser": "^1.15.0",
     "express": "^4.13.4"
   }

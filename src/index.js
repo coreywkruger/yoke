@@ -17,7 +17,7 @@ var App = function() {
   this.app.use(bodyParser.json());
   this.app.use(function(req, res, next){
     req.session = {};
-    req.bold = BoldContext;
+    req.context = BoldContext;
     next();
   });
   // headers
@@ -32,6 +32,10 @@ var App = function() {
       next();
     }
   });
+  this.routers = {
+    private: {},
+    public: {}
+  };
 };
 
 App.prototype.registerContext = function(core, name){
@@ -41,11 +45,15 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.start = function(port, host, cb) {
+App.prototype.addAuthentication = function(auth){
+  this.AuthMiddleware = auth;
+};
 
-  const auth = Authentication.new({
-    session_key_public: config.get('app').session_key
-  });
+App.prototype.addPublicRoutes = function(prefix, router, isPrivate){
+  this.routers[isPrivate ? 'private' : 'public'][prefix] = router
+};
+
+App.prototype.start = function(port, host, cb) {
 
   this.app.use(function(req, res, next){
     req.bold.myContext.ping((msg) => {
@@ -53,9 +61,18 @@ App.prototype.start = function(port, host, cb) {
       next();
     });
   });
-  this.app.use('/', PublicRouter);
-  this.app.use(auth.authenticate);
-  this.app.use('/', PrivateRouter);
+
+  for(var key in this.routers.public){
+    this.app.use(this.routers.public[key]);
+  }
+
+  if(this.AuthMiddleware){
+    this.app.use(this.AuthMiddleware);
+    for(var key in this.routers.private){
+      this.app.use(this.routers.private[key]);
+    }
+  }
+
   this.app.use((req, res) => {
     res.sendStatus(404);
   });
