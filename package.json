@@ -1,7 +1,7 @@
 {
-  "name": "@gobold/pay-proxy",
+  "name": "@gobold/yoke",
   "version": "1.0.0",
-  "description": "Proxy to pay api",
+  "description": "Proxy to an api",
   "access": "restricted",
   "scripts": {
     "check-coverage": "node_modules/.bin/istanbul check-coverage --statements 10 --branches 10 --functions 10 --lines 10 ./coverage/coverage.json",

@@ -3,8 +3,6 @@ const bodyParser = require('body-parser');
 const h = require('@gobold/bold-require')('helper');
 const config = h.requireConfig();
 const Authentication = require('../lib/authentication');
-const PrivateRouter = require('./private_router');
-const PublicRouter = require('./public_router');
 
 var BoldContext = {};
 
@@ -33,47 +31,53 @@ var App = function() {
     }
   });
   this.routers = {
-    private: {},
-    public: {}
+    private: [],
+    public: []
   };
+  this.authenticator = Authentication.New({
+    header_name: 'session-key'
+  });
 };
 
 App.prototype.registerContext = function(core, name){
   this.app.use(function(req, res, next){
-    req.bold[name] = core;
+    req.context[name] = core;
     next();
   });
 };
 
 App.prototype.addAuthentication = function(auth){
-  this.AuthMiddleware = auth;
+  this.authenticator.setValidationMethod(auth);
 };
 
-App.prototype.addPublicRoutes = function(prefix, router, isPrivate){
-  this.routers[isPrivate ? 'private' : 'public'][prefix] = router
+App.prototype.addRouter = function(routes, isPrivate){
+  this.routers[isPrivate ? 'private' : 'public'].push(function(){
+    var router = new express.Router();
+    for(var i = 0 ; i < routes.length ; i++){
+      var route = routes[i];
+      router[route.method](route.path, function(req, res, next){
+        route.action.call({
+          req: req
+        }, function(err, response){
+          next(err);
+        });
+      });
+    }
+    return router;
+  }());
 };
 
 App.prototype.start = function(port, host, cb) {
-
-  // const Auth = Authentication.New({
-  //   session_key_public: config.get('app').session_key
-  // });
-
-  this.app.use(function(req, res, next){
-    req.bold.myContext.ping((msg) => {
-      console.log(msg);
-      next();
-    });
-  });
-
-  for(var key in this.routers.public){
-    this.app.use(this.routers.public[key]);
+  for(var i = 0 ; i < this.routers.public.length ; i++){
+    this.app.use(this.routers.public[i]);
   }
 
   if(this.AuthMiddleware){
-    this.app.use(this.AuthMiddleware);
-    for(var key in this.routers.private){
-      this.app.use(this.routers.private[key]);
+    for(var key in this.authenticators){
+      this.app.use(this.authenticators[key]);
+    }
+    for(var i = 0 ; i < this.routers.private.length ; i++){
+      this.app.use(this.routers.private[i]);
     }
   }
 
