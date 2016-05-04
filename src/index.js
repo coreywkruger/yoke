@@ -1,7 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const h = require('@gobold/bold-require')('helper');
-const config = h.requireConfig();
 const Authentication = require('../lib/authentication');
 
 var BoldContext = {};
@@ -58,7 +56,7 @@ App.prototype.addRouter = function(routes, isPrivate){
       router[route.method](route.path, function(req, res, next){
         route.action.call({
           req: req
-        }, function(err, response){
+        }, function(err){
           next(err);
         });
       });
