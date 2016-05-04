@@ -9,6 +9,19 @@ function Authentication(config) {
 };
 
 /*
+* Validate session key
+*
+* 1) decrypts token and 2) validates token
+*/
+Authentication.prototype.Validate = function(key, cb){
+  return this.validataion.call(this, key, cb);
+};
+
+Authentication.prototype.setValidationMethod = function(cb){
+  this.validataion = cb;
+};
+
+/*
 * middleware function that gets the headers and injects the context
 */
 Authentication.prototype.Authenticate = function(req, res, next){
@@ -23,19 +36,6 @@ Authentication.prototype.Authenticate = function(req, res, next){
     req.session = who;
     next();
   });
-};
-
-/*
-* Validate session key
-*
-* 1) decrypts token and 2) validates token
-*/
-Authentication.prototype.Validate = function(key, cb){
-  return this.validataion.call(this, key, cb);
-};
-
-Authentication.prototype.setValidationMethod = function(cb){
-  this.validataion = cb;
 };
 
 module.exports = {

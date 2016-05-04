@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Authentication = require('../lib/authentication');
+const Authentication = require('./authentication');
 
 var BoldContext = {};
 
@@ -29,8 +29,8 @@ var App = function() {
     }
   });
   this.routers = {
-    private: [],
-    public: []
+    private: null,
+    public: null
   };
   this.authenticator = Authentication.New({
     header_name: 'session-key'
@@ -48,33 +48,35 @@ App.prototype.addAuthenticator = function(auth){
   this.authenticator.setValidationMethod(auth);
 };
 
+// App.prototype.setHTTPAdapter = function(adapter){
+//   this.adapter = adapter.initialize();
+// };
+
 App.prototype.addRoute = function(routes, isPrivate){
-  this.routers[isPrivate ? 'private' : 'public'].push(function(){
-    var router = new express.Router();
-    for(var i = 0 ; i < routes.length ; i++){
-      var route = routes[i];
-      router[route.method](route.path, function(req, res, next){
-        route.action.call({
-          req: req
-        }, function(err){
-          next(err);
-        });
+  var key = isPrivate ? 'private' : 'public';
+  this.routers[key] = new express.Router();
+  for(var i = 0 ; i < routes.length ; i++){
+    var route = routes[i];
+    this.routers[key][route.method](route.path, function(req, res, next){
+      route.action.call({
+        req: req
+      }, function(err){
+        next(err);
       });
-    }
-    return router;
-  }());
+    });
+  }
 };
 
 App.prototype.start = function(port, host, cb) {
-  for(var i = 0 ; i < this.routers.public.length ; i++){
-    this.app.use(this.routers.public[i]);
+  if(this.routers.public){
+    this.app.use(this.routers.public);
   }
-
-  this.app.use(this.authenticator.Authenticate);
-  for(var i = 0 ; i < this.routers.private.length ; i++){
-    this.app.use(this.routers.private[i]);
+  if(this.authenticator.Authenticate){
+    this.app.use(this.authenticator.Authenticate);
+    if(this.routers.private){
+      this.app.use(this.routers.private);
+    }
   }
-
   this.app.use((req, res) => {
     res.sendStatus(404);
   });
