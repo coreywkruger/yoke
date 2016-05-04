@@ -44,11 +44,11 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.addAuthentication = function(auth){
+App.prototype.addAuthenticator = function(auth){
   this.authenticator.setValidationMethod(auth);
 };
 
-App.prototype.addRouter = function(routes, isPrivate){
+App.prototype.addRoute = function(routes, isPrivate){
   this.routers[isPrivate ? 'private' : 'public'].push(function(){
     var router = new express.Router();
     for(var i = 0 ; i < routes.length ; i++){
@@ -70,13 +70,9 @@ App.prototype.start = function(port, host, cb) {
     this.app.use(this.routers.public[i]);
   }
 
-  if(this.AuthMiddleware){
-    for(var key in this.authenticators){
-      this.app.use(this.authenticators[key]);
-    }
-    for(var i = 0 ; i < this.routers.private.length ; i++){
-      this.app.use(this.routers.private[i]);
-    }
+  this.app.use(this.authenticator.Authenticate);
+  for(var i = 0 ; i < this.routers.private.length ; i++){
+    this.app.use(this.routers.private[i]);
   }
 
   this.app.use((req, res) => {
