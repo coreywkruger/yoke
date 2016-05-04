@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Authentication = require('./authentication');
 
-var BoldContext = {};
+var BoldContext = {name: 'myself'};
 
 var App = function() {
   this.app = express();
@@ -32,9 +32,6 @@ var App = function() {
     private: null,
     public: null
   };
-  this.authenticator = Authentication.New({
-    header_name: 'session-key'
-  });
 };
 
 App.prototype.registerContext = function(core, name){
@@ -44,8 +41,11 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.addAuthenticator = function(auth){
-  this.authenticator.setValidationMethod(auth);
+App.prototype.setAuthentication = function(key_name, auth){
+  this.app.use(function(req, res, next){
+    auth.header_name = key_name;
+    req.context.authenticator = auth;
+  });
 };
 
 // App.prototype.setHTTPAdapter = function(adapter){
@@ -71,11 +71,9 @@ App.prototype.start = function(port, host, cb) {
   if(this.routers.public){
     this.app.use(this.routers.public);
   }
-  if(this.authenticator.Authenticate){
-    this.app.use(this.authenticator.Authenticate);
-    if(this.routers.private){
-      this.app.use(this.routers.private);
-    }
+  this.app.use(Authentication);
+  if(this.routers.private){
+    this.app.use(this.routers.private);
   }
   this.app.use((req, res) => {
     res.sendStatus(404);
