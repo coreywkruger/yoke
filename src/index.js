@@ -29,8 +29,8 @@ var App = function() {
     }
   });
   this.routers = {
-    private: null,
-    public: null
+    private: new express.Router(),
+    public: new express.Router()
   };
 };
 
@@ -45,6 +45,7 @@ App.prototype.setAuthentication = function(key_name, auth){
   this.app.use(function(req, res, next){
     auth.header_name = key_name;
     req.context.authenticator = auth;
+    next();
   });
 };
 
@@ -54,7 +55,6 @@ App.prototype.setAuthentication = function(key_name, auth){
 
 App.prototype.addRoute = function(routes, isPrivate){
   var key = isPrivate ? 'private' : 'public';
-  this.routers[key] = new express.Router();
   for(var i = 0 ; i < routes.length ; i++){
     var route = routes[i];
     this.routers[key][route.method](route.path, function(req, res, next){
@@ -68,9 +68,15 @@ App.prototype.addRoute = function(routes, isPrivate){
 };
 
 App.prototype.start = function(port, host, cb) {
+  // this.app.use(function(req, res, next){
+  //   next();
+  // });
   if(this.routers.public){
     this.app.use(this.routers.public);
   }
+  // this.app.use(function(req, res, next){
+  //   next();
+  // });
   this.app.use(Authentication);
   if(this.routers.private){
     this.app.use(this.routers.private);
