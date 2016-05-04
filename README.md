@@ -1,6 +1,7 @@
 ## Yoke
 ### To ensure equal yokage for all apps and cores
-```
+
+```javascript
 /* import from @gobold */
 const Yoke = require('@gobold/yoke');
 
