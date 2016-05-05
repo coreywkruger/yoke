@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Authentication = require('./authentication');
-const HTTPAdapters = require('./adapters');
+const HTTPAdapters = require('./http_adapters');
 
 var BoldContext = {};
 
@@ -39,13 +39,10 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.authAdapter = function(key_name, auth){
+App.prototype.setAuthAdapter = function(auth){
   this.useAuth = true;
   this.app.use(function(req, res, next){
-    req.context.auth_key_name = key_name;
-    req.context.auth = function(){
-      this.execute = auth;
-    };
+    req.context.auth = auth;
     next();
   });
 };
