@@ -15,6 +15,7 @@ yoke.setHTTPAdapter('express');
 yoke.addRoute([{
   method: 'get',
   path: '/ping',
+  auth: true,
   action: function(cb){
     cb('pong');
   }
