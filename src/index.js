@@ -22,7 +22,7 @@ var App = function() {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, session-key');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
     if (req.method === 'OPTIONS') {
       res.sendStatus(200);
     } else {
@@ -42,6 +42,7 @@ App.prototype.registerContext = function(core, name){
 App.prototype.setAuthAdapter = function(header, auth){
   this.useAuth = true;
   this.app.use(function(req, res, next){
+    res.header('Access-Control-Allow-Headers', header);
     req.context.auth_header = header;
     req.context.auth = auth;
     next();
@@ -53,9 +54,10 @@ App.prototype.setHTTPAdapter = function(adapterName){
   this.routers.private = new HTTPAdapters[adapterName]();
 };
 
-App.prototype.addRoute = function(routes, isPrivate){
-  var key = isPrivate ? 'private' : 'public';
-  this.routers[key].addRoute(routes);
+App.prototype.addRoutes = function(routes){
+  for(var i = 0 ; i < routes.length ; i++){
+    this.routers[routes[i].auth ? 'private' : 'public'].addRoute(routes[i]);
+  }
 };
 
 App.prototype.start = function(port, host, cb) {
