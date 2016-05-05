@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Authentication = require('./authentication');
+const HTTPAdapters = require('./adapters');
 
 var BoldContext = {};
 
@@ -28,10 +29,7 @@ var App = function() {
       next();
     }
   });
-  this.routers = {
-    private: new express.Router(),
-    public: new express.Router()
-  };
+  this.routers = {};
 };
 
 App.prototype.registerContext = function(core, name){
@@ -41,41 +39,35 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.setAuthentication = function(key_name, auth){
+App.prototype.authAdapter = function(key_name, auth){
   this.useAuth = true;
   this.app.use(function(req, res, next){
-    req.context.authenticator_key_name = key_name;
-    req.context.authenticator = auth;
+    req.context.auth_key_name = key_name;
+    req.context.auth = function(){
+      this.execute = auth;
+    };
     next();
   });
 };
 
-// App.prototype.setHTTPAdapter = function(adapter){
-//   this.adapter = adapter.initialize();
-// };
+App.prototype.setHTTPAdapter = function(adapterName){
+  this.routers['public'] = new HTTPAdapters[adapterName]();
+  this.routers['private'] = new HTTPAdapters[adapterName]();
+};
 
 App.prototype.addRoute = function(routes, isPrivate){
   var key = isPrivate ? 'private' : 'public';
-  for(var i = 0 ; i < routes.length ; i++){
-    var route = routes[i];
-    this.routers[key][route.method](route.path, function(req, res, next){
-      route.action.call({
-        req: req
-      }, function(err){
-        next(err);
-      });
-    });
-  }
+  this.routers[key].addRoute(routes);
 };
 
 App.prototype.start = function(port, host, cb) {
   if(this.routers.public){
-    this.app.use(this.routers.public);
+    this.app.use(this.routers.public.router);
   }
   if(this.useAuth){
     this.app.use(Authentication);
     if(this.routers.private){
-      this.app.use(this.routers.private);
+      this.app.use(this.routers.private.router);
     }
   }
   this.app.use((req, res) => {
