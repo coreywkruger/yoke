@@ -8,7 +8,7 @@ ExpressRouter.prototype.addRoute = function(newRoute){
   if(newRoute instanceof Array){
     for(var i = 0 ; i < newRoute.length ; i++){
       var route = newRoute[i];
-      this.router[route.method](route.path, function(req, res, next){
+      this.router[route.method](route.path, function(req, res){
         route.action.call({
           context: req.context,
           session: req.session
@@ -23,7 +23,7 @@ ExpressRouter.prototype.addRoute = function(newRoute){
       });
     }
   } else {
-    this.router[newRoute.method](newRoute.path, function(req, res, next){
+    this.router[newRoute.method](newRoute.path, function(req, res){
       newRoute.action.call({
         context: req.context,
         session: req.session
@@ -41,4 +41,4 @@ ExpressRouter.prototype.addRoute = function(newRoute){
 
 module.exports = {
   'express': ExpressRouter
-}
+};

@@ -39,17 +39,18 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.setAuthAdapter = function(auth){
+App.prototype.setAuthAdapter = function(header, auth){
   this.useAuth = true;
   this.app.use(function(req, res, next){
+    req.context.auth_header = header;
     req.context.auth = auth;
     next();
   });
 };
 
 App.prototype.setHTTPAdapter = function(adapterName){
-  this.routers['public'] = new HTTPAdapters[adapterName]();
-  this.routers['private'] = new HTTPAdapters[adapterName]();
+  this.routers.public = new HTTPAdapters[adapterName]();
+  this.routers.private = new HTTPAdapters[adapterName]();
 };
 
 App.prototype.addRoute = function(routes, isPrivate){
