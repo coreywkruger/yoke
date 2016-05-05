@@ -1,15 +1,29 @@
-## Yoke
-### To ensure equal yokage for all apps and cores
+## onboarding-api
+### Uses @gobold/yoke to bootstrap api
 
 ```javascript
-/* import from @gobold */
-const Yoke = require('@gobold/yoke');
-
-/* Initialize new yoke */
+// Initialize new yoke
 var yoke = new Yoke();
 
-/* add route(s) */
-yoke.addRouter([{
+/* 
+* inject authentication adapter
+*/
+var auth = new Auth({
+  publicKey: config.get('app').session_key
+});
+yoke.authAdapter('session-key', auth.Execute);
+
+/*
+* choose routing adapter
+* add route(s)
+* the array can have as many routes as you want
+*/
+yoke.setHTTPAdapter('express');
+
+/*
+* attach routes
+*/
+yoke.addRoute([{
   method: 'get',
   path: '/ping',
   action: function(cb){
@@ -22,5 +36,44 @@ yoke.addRouter([{
 */
 yoke.start('8020', '127.0.0.1', function(){
   console.log('starting... ')
+});
+```
+
+### Cores can be initialized, registered, and accessed like so:
+
+```javascript
+// Initialize new yoke
+var yoke = new Yoke();
+
+/*
+* attach new cores
+*/
+/* client-core */
+clientCore.initialize({
+  database: config_shenanigans
+}, function(err, core){
+  
+  /* 
+  * register context
+  * injects cores into controllers 
+  */
+  yoke.registerContext(core, 'clientCore');
+  
+  yoke.addRoute([{
+    method: 'get',
+    path: '/ping',
+    action: function(cb){
+
+      /* access core here */
+      this.context.clientCore.doThingHere( ... );
+
+      ... 
+    }
+  }]);
+
+  /* start server */
+  yoke.start('8020', '127.0.0.1', function(){
+    console.log('starting... ');
+  });
 });
 ```
