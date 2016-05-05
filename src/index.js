@@ -44,7 +44,7 @@ App.prototype.setAuthAdapter = function(header, auth){
   this.app.use(function(req, res, next){
     res.header('Access-Control-Allow-Headers', header);
     req.context.auth_header = header;
-    req.context.auth = auth;
+    req.context.auth = auth.bind(req);
     next();
   });
 };
