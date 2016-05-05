@@ -60,7 +60,7 @@ App.prototype.addRoutes = function(routes){
   }
 };
 
-App.prototype.start = function(port, host, cb) {
+App.prototype.start = function(port, cb) {
   if(this.routers.public){
     this.app.use(this.routers.public.router);
   }
@@ -73,7 +73,7 @@ App.prototype.start = function(port, host, cb) {
   this.app.use((req, res) => {
     res.sendStatus(404);
   });
-  this.server = this.app.listen(port, host, () => {
+  this.server = this.app.listen(port, () => {
     cb();
   });
 };
