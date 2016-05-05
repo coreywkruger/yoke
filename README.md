@@ -8,10 +8,10 @@ var yoke = new Yoke();
 /* 
 * inject authentication adapter
 */
-var auth = new Auth({
-  publicKey: config.get('app').session_key
-});
-yoke.authAdapter('session-key', auth.Execute);
+yoke.setAuthAdapter(new Auth({
+  headerName: 'session-key',
+  publicKey: 'FJLAkdKJFHklJHFSDLjkdsjks'
+}));
 
 /*
 * choose routing adapter
@@ -19,10 +19,6 @@ yoke.authAdapter('session-key', auth.Execute);
 * the array can have as many routes as you want
 */
 yoke.setHTTPAdapter('express');
-
-/*
-* attach routes
-*/
 yoke.addRoute([{
   method: 'get',
   path: '/ping',
