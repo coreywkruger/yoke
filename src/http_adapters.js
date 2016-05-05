@@ -7,11 +7,12 @@ function ExpressRouter(){
 
 ExpressRouter.prototype.addRoute = function(newRoute){
   this.router[newRoute.method](newRoute.path, function(req, res){
-    var params = _.assign({}, req.params, req.body, req.query);
+    var params = _.assign({}, req.params, req.query);
     newRoute.action.call({
       context: req.context,
       session: req.session,
-      params: params
+      params: params,
+      body: req.body
     }, function(err, response){
       if(err){
         return res.status(500).json({
