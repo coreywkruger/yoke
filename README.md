@@ -5,19 +5,12 @@
 // Initialize new yoke
 var yoke = new Yoke();
 
-/* 
-* inject authentication adapter
-*/
-yoke.setAuthAdapter(new Auth({
-  headerName: 'session-key',
-  publicKey: 'FJLAkdKJFHklJHFSDLjkdsjks'
-}));
-
 /*
-* choose routing adapter
-* add route(s)
-* the array can have as many routes as you want
+* 1) define header to use for ath; inject authentication method
+* 2) choose routing adapter
+* 3) add route(s)
 */
+yoke.setAuthAdapter('session-key', Auth);
 yoke.setHTTPAdapter('express');
 yoke.addRoute([{
   method: 'get',
@@ -50,11 +43,9 @@ clientCore.initialize({
 }, function(err, core){
   
   /* 
-  * register context
-  * injects cores into controllers 
+  * inject core into controllers
   */
   yoke.registerContext(core, 'clientCore');
-  
   yoke.addRoute([{
     method: 'get',
     path: '/ping',
