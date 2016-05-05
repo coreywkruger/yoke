@@ -10,7 +10,7 @@ ExpressRouter.prototype.addRoute = function(newRoute){
       var route = newRoute[i];
       this.router[route.method](route.path, function(req, res, next){
         route.action.call({
-          req: req
+          context: req.context
         }, function(err){
           next(err);
         });
@@ -19,7 +19,7 @@ ExpressRouter.prototype.addRoute = function(newRoute){
   } else {
     this.router[newRoute.method](newRoute.path, function(req, res, next){
       newRoute.action.call({
-        req: req
+        context: req.context
       }, function(err){
         next(err);
       });
