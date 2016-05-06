@@ -1,7 +1,7 @@
 {
   "name": "@gobold/yoke",
   "version": "1.0.0",
-  "description": "Proxy to an api",
+  "description": "Bootstrap and API",
   "access": "restricted",
   "scripts": {
     "check-coverage": "node_modules/.bin/istanbul check-coverage --statements 10 --branches 10 --functions 10 --lines 10 ./coverage/coverage.json",
@@ -35,14 +35,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/coreywkruger/pay-proxy.git"
+    "url": "git+ssh://git@gitlab.com/coreywkruger/yoke.git"
   },
   "author": "Corey Kruger",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/coreywkruger/pay-proxy/issues"
+    "url": "https://gitlab.com/coreywkruger/yoke/issues"
   },
-  "homepage": "https://gitlab.com/coreywkruger/pay-proxy#README",
+  "homepage": "https://gitlab.com/coreywkruger/yoke#README",
   "devDependencies": {
     "async": "^2.0.0-rc.2",
     "babel-cli": "^6.3.17",
@@ -52,7 +52,6 @@
     "babel-register": "^6.7.2",
     "chai": "^3.4.1",
     "eslint": "^1.10.3",
-    "eslint-config-gobold": "0.0.2",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
     "gulp-eslint": "^1.1.1",
@@ -70,8 +69,6 @@
     "rimraf": "^2.4.4"
   },
   "dependencies": {
-    "@gobold/bold-require": "^4.9.0",
-    "@gobold/session": "^1.0.2",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "lodash": "^4.11.2"

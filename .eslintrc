@@ -9,10 +9,7 @@
     "mocha": true,
     "es6": true
   },
-  "extends": [
-    "gobold",
-    "gobold/es6",
-  ],
+  "extends": [],
   "rules": {
     "camelcase": 0,
     "comma-spacing": 1,
@@ -30,7 +27,7 @@
     "no-undef": 1,
     "no-use-before-define": 1,
     "operator-assignment": 1,
-    "quotes": 1,
+    "quotes": [1, "single"],
     "semi": 1
   }
 }
