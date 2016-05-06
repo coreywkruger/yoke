@@ -24,7 +24,7 @@ yoke.addRoute([{
 /*
 * start listening on port 8020 on localhost
 */
-yoke.start('8020', '127.0.0.1', function(){
+yoke.start('8020', function(){
   console.log('starting... ')
 });
 ```
@@ -60,7 +60,7 @@ clientCore.initialize({
   }]);
 
   /* start server */
-  yoke.start('8020', '127.0.0.1', function(){
+  yoke.start('8020', function(){
     console.log('starting... ');
   });
 });
