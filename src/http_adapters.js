@@ -19,9 +19,7 @@ ExpressRouter.prototype.addRoute = function(newRoute){
           error: err
         });
       }
-      res.status(200).json({
-        data: response
-      });
+      res.status(200).json(response);
     });
   });
 };
