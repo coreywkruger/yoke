@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Authentication = require('./authentication');
+// const Authentication = require('./authentication');
 const HTTPAdapters = require('./http_adapters');
+const AuthAdapters = require('./auth_adapters');
 
 var BoldContext = {};
 
@@ -39,14 +40,8 @@ App.prototype.registerContext = function(core, name){
   });
 };
 
-App.prototype.setAuthAdapter = function(header, auth){
-  this.useAuth = true;
-  this.app.use(function(req, res, next){
-    res.header('Access-Control-Allow-Headers', header);
-    req.context.auth_header = header;
-    req.context.auth = auth.bind(req);
-    next();
-  });
+App.prototype.setAuthAdapter = function(adapterName, args, authenticate){
+  this.Auth = new AuthAdapters[adapterName](args, authenticate);
 };
 
 App.prototype.setHTTPAdapter = function(adapterName){
@@ -64,8 +59,8 @@ App.prototype.start = function(port, cb) {
   if(this.routers.public){
     this.app.use(this.routers.public.router);
   }
-  if(this.useAuth){
-    this.app.use(Authentication);
+  if(this.Auth){
+    this.app.use(this.Auth.authenticate());
     if(this.routers.private){
       this.app.use(this.routers.private.router);
     }
