@@ -1,6 +1,6 @@
 
-function HeaderAuthAdapter(args, method){
-  this.header = args.header;
+function HeaderAuthAdapter(headerName, method){
+  this.header = headerName;
   this.method = method;
 }
 
