@@ -33,7 +33,7 @@ var App = function() {
   this.routers = {};
 };
 
-App.prototype.registerContext = function(core, name){
+App.prototype.registerContext = function(name, core){
   this.app.use(function(req, res, next){
     req.context[name] = core;
     next();
