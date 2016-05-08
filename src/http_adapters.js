@@ -8,7 +8,7 @@ function ExpressRouter(){
 ExpressRouter.prototype.addRoute = function(newRoute){
   this.router[newRoute.method](newRoute.path, function(req, res){
     var params = _.assign({}, req.params, req.query);
-    newRoute.action.call({
+    newRoute.controller.call({
       context: req.context,
       session: req.session,
       params: params,
