@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const HTTPAdapters = require('./http_adapters');
 const AuthAdapters = require('./auth_adapters');
 
-var BoldContext = {};
+var Context = {};
 
 var App = function() {
   this.app = express();
@@ -15,7 +15,7 @@ var App = function() {
   this.app.use(bodyParser.json());
   this.app.use(function(req, res, next){
     req.session = {};
-    req.context = BoldContext;
+    req.context = Context;
     next();
   });
   // headers
