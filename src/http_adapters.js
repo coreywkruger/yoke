@@ -1,5 +1,4 @@
 const express = require('express');
-const _ = require('lodash');
 
 function ExpressRouter(){
   this.router = new express.Router();
@@ -7,7 +6,7 @@ function ExpressRouter(){
 
 ExpressRouter.prototype.addRoute = function(newRoute){
   this.router[newRoute.method](newRoute.path, function(req, res){
-    var params = _.assign({}, req.params, req.query);
+    var params = Object.assign({}, req.params, req.query);
     newRoute.controller.call({
       context: req.context,
       session: req.session,
