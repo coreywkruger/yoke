@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-// const Authentication = require('./authentication');
 const HTTPAdapters = require('./http_adapters');
 const AuthAdapters = require('./auth_adapters');
+const Injector = require('./injector').Injector;
 
-var Context = {};
+var injector = new Injector();
 
 var App = function() {
   this.app = express();
@@ -15,7 +15,7 @@ var App = function() {
   this.app.use(bodyParser.json());
   this.app.use(function(req, res, next){
     req.session = {};
-    req.context = Context;
+    req.dependencies = injector;
     next();
   });
   // headers
@@ -33,11 +33,8 @@ var App = function() {
   this.routers = {};
 };
 
-App.prototype.registerContext = function(name, core){
-  this.app.use(function(req, res, next){
-    req.context[name] = core;
-    next();
-  });
+App.prototype.addCore = function(name, cb){
+  injector.add(name, cb);
 };
 
 App.prototype.setAuthAdapter = function(adapterName, args, authenticate){
@@ -56,21 +53,23 @@ App.prototype.addRoutes = function(routes){
 };
 
 App.prototype.start = function(port, cb) {
-  if(this.routers.public){
-    this.app.use(this.routers.public.router);
-  }
-  if(this.Auth){
-    this.app.use(this.Auth.authenticate());
-    if(this.routers.private){
-      this.app.use(this.routers.private.router);
+  // injector.ready().then(() => {
+    if(this.routers.public){
+      this.app.use(this.routers.public.router);
     }
-  }
-  this.app.use((req, res) => {
-    res.sendStatus(404);
-  });
-  this.server = this.app.listen(port, () => {
-    cb();
-  });
+    if(this.Auth){
+      this.app.use(this.Auth.authenticate(this.cores));
+      if(this.routers.private){
+        this.app.use(this.routers.private.router);
+      }
+    }
+    this.app.use((req, res) => {
+      res.sendStatus(404);
+    });
+    this.server = this.app.listen(port, () => {
+      cb();
+    });
+  // });
 };
 
 module.exports = App;
