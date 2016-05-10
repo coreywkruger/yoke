@@ -11,7 +11,7 @@ var yoke = new Yoke();
 * 2) choose routing adapter
 * 3) add route(s)
 */
-yoke.setAuthAdapter('header', 'session-key', Authenticate);
+yoke.setAuthAdapter('header', 'some-header-name', someAuthMethod);
 yoke.setHTTPAdapter('express');
 yoke.addRoute([{
   method: 'get',
@@ -39,29 +39,31 @@ var yoke = new Yoke();
 /*
 * attach new cores
 */
-/* client-core */
-myCore.initialize({
-  database: config_shenanigans
-}, function(err, core){
-  
-  /* 
-  * inject core into controllers
-  */
-  yoke.registerContext('myCore', core);
-  yoke.addRoute([{
-    method: 'get',
-    path: '/ping',
-    controller: function(cb){
-      /* 
-      * use core inside controller 
-      */
-      this.context.myCore.doThingHere( ... );
-    }
-  }]);
-
-  /* start server */
-  yoke.start('8020', function(){
-    console.log('starting... ');
+yoke.addCore('clientCore', function(done){
+  clientCore.initialize({
+    database: config.get('database')['payout_'+config.get('APP_ENV')]
+  }, function(err, core){
+    ...
+    done(null, core);
   });
+});
+  
+/* 
+* inject core into controllers
+*/
+yoke.addRoute([{
+  method: 'get',
+  path: '/ping',
+  controller: function(cb){
+    /* 
+    * use core inside controller 
+    */
+    this.core('clientCore').doThingHere( ... );
+  }
+}]);
+
+/* start server */
+yoke.start('8020', function(){
+  console.log('starting... ');
 });
 ```
