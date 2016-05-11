@@ -3,14 +3,14 @@ const expect = require('chai').expect;
 
 module.exports = function () {
   this.Given(/^a yoke$/, function(cb){
-    cb
+    cb();
   });
 
   this.When(/^I start$/, function(cb){
     cb();
   });
 
-  this.Then(/^it should work (.*)/, function(){
-    console.log('done');
+  this.Then(/^it should work$/, function(cb){
+    cb();
   });
 };
