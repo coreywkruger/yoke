@@ -4,8 +4,6 @@ const HTTPAdapters = require('./http_adapters');
 const AuthAdapters = require('./auth_adapters');
 const Injector = require('./injector').Injector;
 
-var injector = new Injector();
-
 var App = function() {
   this.app = express();
   this.app.disable('x-powered-by');
@@ -13,9 +11,9 @@ var App = function() {
     extended: false
   }));
   this.app.use(bodyParser.json());
+  this.injector = new Injector();
   this.app.use(function(req, res, next){
     req.session = {};
-    req.dependencies = injector;
     next();
   });
   // headers
@@ -34,7 +32,7 @@ var App = function() {
 };
 
 App.prototype.addCore = function(name, cb){
-  injector.add(name, cb);
+  this.injector.add(name, cb);
 };
 
 App.prototype.setAuthAdapter = function(adapterName, args, authenticate){
@@ -53,7 +51,12 @@ App.prototype.addRoutes = function(routes){
 };
 
 App.prototype.start = function(port, cb) {
-  injector.ready().then(() => {
+  this.injector.ready().then(() => {
+    var inj = this.injector;
+    this.app.use(function(req, res, next){
+      req.dependencies = inj;
+      next();
+    });
     if(this.routers.public){
       this.app.use(this.routers.public.router);
     }

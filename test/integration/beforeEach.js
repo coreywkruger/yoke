@@ -18,20 +18,38 @@ const beforeHooks = function () {
     * 2) choose routing adapter
     * 3) add route(s)
     */
+    this.app.setAuthAdapter('header', 'ping', function(header, cb){
+      if(header !== 'pong'){
+        return cb('failed auth');
+      }
+      cb(null, header);
+    });
+
     this.app.setHTTPAdapter('express');
 
-    /* login route */
+    /* routes */
     this.app.addRoutes([{
-      method: 'post',
-      path: '/ping',
+      method: 'get',
+      path: '/public/ping',
       controller: function(cb){
-        cb(null, {});
+        cb(null, {
+          ping: 'public'
+        });
+      }
+    }]);
+    this.app.addRoutes([{
+      method: 'get',
+      path: '/private/ping',
+      auth: true,
+      controller: function(cb){
+        cb(null, {
+          'ping': 'private'
+        });
       }
     }]);
 
     /* start listening on port 8020 */
     this.app.start('8020', function(){
-      console.log('start app');
       next();
     });
   });

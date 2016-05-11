@@ -5,10 +5,10 @@ const afterHooks = function () {
 
   this.After(function (scenario, next) {
     this.app.kill(function(){
-      console.log('shutdown app');
       next();
     });
   });
 };
 
 module.exports = afterHooks;
+ 
