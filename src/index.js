@@ -53,7 +53,7 @@ App.prototype.addRoutes = function(routes){
 };
 
 App.prototype.start = function(port, cb) {
-  // injector.ready().then(() => {
+  injector.ready().then(() => {
     if(this.routers.public){
       this.app.use(this.routers.public.router);
     }
@@ -69,7 +69,11 @@ App.prototype.start = function(port, cb) {
     this.server = this.app.listen(port, () => {
       cb();
     });
-  // });
+  });
+};
+
+App.prototype.kill = function(cb){
+  this.server.close(cb);
 };
 
 module.exports = App;

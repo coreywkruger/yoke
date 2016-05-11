@@ -3,9 +3,11 @@ const Yoke = require('../../dist');
 
 const afterHooks = function () {
 
-  this.After(function () {
-  	console.log('done');
-    // this.app.kill();
+  this.After(function (scenario, next) {
+    this.app.kill(function(){
+      console.log('shutdown app');
+      next();
+    });
   });
 };
 
