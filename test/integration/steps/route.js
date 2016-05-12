@@ -17,9 +17,9 @@ module.exports = function () {
   });
 
   this.Given(/^a private route$/, function(cb){
-    this.app.setAuthAdapter('header', 'ping', function(header, cb){
-      if(header !== 'pong') return cb('failed auth');
-      cb(null, header);
+    this.app.setAuthAdapter('header', 'ping', function(header, callback){
+      if(header !== 'pong') {return cb('failed auth');}
+      callback(null, header);
     });
     this.app.addRoutes([{
       method: 'get',
