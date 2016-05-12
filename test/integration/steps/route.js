@@ -3,13 +3,36 @@ const expect = require('chai').expect;
 
 module.exports = function () {
   this.Given(/^a public route$/, function(cb){
-    this.req = request.get('/public/ping');
-    cb();
+    this.app.addRoutes([{
+      method: 'get',
+      path: '/public/ping',
+      controller: function(callback){
+        callback(null, {ping: 'public'});
+      }
+    }]);
+    this.app.start('8020', () => {
+      this.req = request.get('/public/ping');
+      cb();
+    });
   });
 
   this.Given(/^a private route$/, function(cb){
-    this.req = request.get('/private/ping');
-    cb();
+    this.app.setAuthAdapter('header', 'ping', function(header, cb){
+      if(header !== 'pong') return cb('failed auth');
+      cb(null, header);
+    });
+    this.app.addRoutes([{
+      method: 'get',
+      auth: true,
+      path: '/private/ping',
+      controller: function(callback){
+        callback(null, {ping: 'private'});
+      }
+    }]);
+    this.app.start('8020', () => {
+      this.req = request.get('/private/ping');
+      cb();
+    });
   });
 
   this.When(/^I call route without credentials$/, function(cb){

@@ -1,4 +1,3 @@
-const request = require('supertest')('http://localhost:8020');
 const expect = require('chai').expect;
 
 module.exports = function () {
@@ -7,7 +6,9 @@ module.exports = function () {
   });
 
   this.When(/^I start$/, function(cb){
-    cb();
+    this.app.start('8020', function(){
+      cb();
+    });
   });
 
   this.Then(/^it should work$/, function(cb){
