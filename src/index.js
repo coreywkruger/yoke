@@ -70,7 +70,9 @@ App.prototype.start = function(port, cb) {
       res.sendStatus(404);
     });
     this.server = this.app.listen(port, () => {
-      if(cb) cb();
+      if(cb) {
+        cb();
+      }
     });
   });
 };
