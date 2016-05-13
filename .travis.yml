@@ -14,8 +14,8 @@ node_js:
   - "4.3.1"
 
 script:
-  - gulp
-  - npm test
+  - npm run dist
+  - npm run test
 
 deploy:
   provider: npm
