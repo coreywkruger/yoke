@@ -8,7 +8,7 @@
     "pre-commit-update": "node_modules/.bin/npm-update-outdated",
     "lint": "eslint --max-warnings 1065 --ext .js .",
     "fix-lint": "eslint --fix --ext .js .",
-    "test": "cucumber.js test/integration --require test"
+    "test": "cucumber.js test/unit --require test"
   },
   "pre-commit": {
     "silent": false,

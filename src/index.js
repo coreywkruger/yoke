@@ -61,7 +61,7 @@ App.prototype.start = function(port, cb) {
       this.app.use(this.routers.public.router);
     }
     if(this.Auth){
-      this.app.use(this.Auth.authenticate(this.cores));
+      this.app.use(this.Auth.authenticate());
       if(this.routers.private){
         this.app.use(this.routers.private.router);
       }
@@ -70,7 +70,7 @@ App.prototype.start = function(port, cb) {
       res.sendStatus(404);
     });
     this.server = this.app.listen(port, () => {
-      cb();
+      if(cb) cb();
     });
   });
 };

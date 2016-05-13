@@ -29,8 +29,15 @@ module.exports = function () {
   });
 
   this.Given(/^a private route with a controller that uses that core$/, function(cb){
+    this.app.setAuthAdapter('header', 'ping', function(header, callback){      
+      if(header !== 'pong') {
+        return callback('failed auth');
+      }
+      callback(null, header);
+    });
     this.app.addRoutes([{
       method: 'get',
+      auth: true,
       path: '/ping',
       controller: function(callback){
         callback(null, {
@@ -40,6 +47,7 @@ module.exports = function () {
     }]);
     this.app.start('8020', () => {
       this.req = request.get('/ping');
+      this.req.set('ping', 'pong');
       cb();
     });
   });
