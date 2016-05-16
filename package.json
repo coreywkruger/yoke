@@ -32,14 +32,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/coreywkruger/yoke.git"
+    "url": "git+ssh://git@github.com/gobold/yoke.git"
   },
   "author": "Corey Kruger",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/coreywkruger/yoke/issues"
+    "url": "https://github.com/gobold/yoke/issues"
   },
-  "homepage": "https://gitlab.com/coreywkruger/yoke#README",
+  "homepage": "https://github.com/gobold/yoke#README",
   "devDependencies": {
     "async": "^2.0.0-rc.2",
     "babel-cli": "^6.3.17",
