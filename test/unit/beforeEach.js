@@ -1,10 +1,9 @@
-const Yoke = require('../../dist');
+const argv = require('yargs').argv;
 
 const beforeHooks = function () {
 
   this.Before(function (scenario, next) {
-    this.app = new Yoke();
-    this.app.setHTTPAdapter('express');
+    this.port = argv.port;    
     next();
   });
 };

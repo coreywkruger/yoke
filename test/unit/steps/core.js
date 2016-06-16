@@ -1,72 +1,33 @@
-const request = require('supertest')('http://localhost:8020');
 const expect = require('chai').expect;
 
 module.exports = function () {
 
-  this.Given(/^a core$/, function(cb){
-    this.app.addCore('myCore', function(done){
-      done(null, {
-        ping: () => 'core response'
-      });
+  this.Given(/^a core named (.*) with method "(.*)" that returns "(.*)"$/, function(coreName, method, response, cb){
+    this.app.addCore(coreName, function(done){
+      var core = {};
+      core[method] = ping => response;
+      done(null, core);
     });
     cb();
   });
 
-  this.Given(/^a public route with a controller that uses that core$/, function(cb){
+  this.Given(/^a "(.*)" route with "(.*)" method @ "(.*)" with a controller that uses core (.*)$/, function(auth, method, path, coreName, cb){
     this.app.addRoutes([{
-      method: 'get',
-      path: '/ping',
+      method: method,
+      path: path,
+      auth: auth === 'private' ? true : false,
       controller: function(callback){
-        callback(null, {
-          ping: this.cores.get('myCore').ping()
-        });
+        callback(null, this.cores.get(coreName).ping());
       }
     }]);
-    this.app.start('8020', () => {
-      this.req = request.get('/ping');
+    this.app.start(this.port, () => {
+      this.req = this.request.get(path);
       cb();
     });
   });
 
-  this.Given(/^a private route with a controller that uses that core$/, function(cb){
-    this.app.setAuthAdapter('header', 'ping', function(header, callback){      
-      if(header !== 'pong') {
-        return callback('failed auth');
-      }
-      callback(null, header);
-    });
-    this.app.addRoutes([{
-      method: 'get',
-      auth: true,
-      path: '/ping',
-      controller: function(callback){
-        callback(null, {
-          ping: this.cores.get('myCore').ping()
-        });
-      }
-    }]);
-    this.app.start('8020', () => {
-      this.req = request.get('/ping');
-      this.req.set('ping', 'pong');
-      cb();
-    });
-  });
-
-  this.When(/^I call the route that uses cores$/, function(cb){
-    this.req.end((err, response) => {
-      expect(err).to.be.null;
-      this.response = response;
-      cb();
-    });
-  });
-
-  this.Then(/^the route's controller should be able to execute the core's methods$/, function(cb){
-    cb();
-  });
-
-  this.Then(/^I should receive a response with content from the core$/, function(cb){
-    expect(this.response.statusCode).to.equal(200);
-    expect(this.response.body.ping).to.equal('core response');
+  this.Then(/^the response should contain "(.*)"$/, function(response, cb){
+    expect(this.response.body).to.be.equal(response);
     cb();
   });
 };

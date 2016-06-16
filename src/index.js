@@ -6,6 +6,9 @@ const Injector = require('./injector').Injector;
 
 var App = function() {
   this.app = express();
+  this.routers = {};
+  this.allowedHeaders = ['X-Requested-With', 'Content-Type', 'Access-Control-Allow-Credentials'];
+  this.allowedMethods = ['GET', 'PUT', 'POST', 'DELETE'];
   this.app.disable('x-powered-by');
   this.app.use(bodyParser.urlencoded({
     extended: false
@@ -16,19 +19,17 @@ var App = function() {
     req.session = {};
     next();
   });
+
+  var allowedHeaders = this.allowedHeaders;
+  var allowedMethods = this.allowedMethods;
   // headers
   this.app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', req.headers.origin);
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
+    res.header('Access-Control-Allow-Methods', allowedMethods.join(','));
+    res.header('Access-Control-Allow-Headers', allowedHeaders.join(','));
+    next();
   });
-  this.routers = {};
 };
 
 App.prototype.addCore = function(name, cb){
@@ -36,7 +37,7 @@ App.prototype.addCore = function(name, cb){
 };
 
 App.prototype.setAuthAdapter = function(adapterName, args, authenticate){
-  this.Auth = new AuthAdapters[adapterName](args, authenticate);
+  this.Auth = new AuthAdapters[adapterName](this, args, authenticate);
 };
 
 App.prototype.setHTTPAdapter = function(adapterName){
@@ -55,7 +56,11 @@ App.prototype.start = function(port, cb) {
     var inj = this.injector;
     this.app.use(function(req, res, next){
       req.dependencies = inj;
-      next();
+      if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+      } else {
+        next();
+      }
     });
     if(this.routers.public){
       this.app.use(this.routers.public.router);

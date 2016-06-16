@@ -1,13 +1,20 @@
-const request = require('supertest')('http://localhost:8020');
+const Yoke = require('../../../dist');
 const expect = require('chai').expect;
 
 module.exports = function () {
   this.Given(/^a yoke$/, function(cb){
+    this.request = require('supertest')('http://localhost:'+this.port);
+    this.app = new Yoke();
     cb();
   });
 
-  this.Given(/^an auth adapter$/, function(cb){
-    this.app.setAuthAdapter('header', 'ping', function(header, callback){      
+  this.Given(/^a (.*) http adapter$/, function(httpType, cb){
+    this.app.setHTTPAdapter(httpType);
+    cb();
+  });
+
+  this.Given(/^a (.*) auth adapter$/, function(authType, cb){
+    this.app.setAuthAdapter(authType, 'ping', function(header, callback){      
       if(header !== 'pong') {
         return callback('failed auth');
       }
@@ -18,85 +25,71 @@ module.exports = function () {
     cb();
   });
 
-  this.Given(/^a public route with a controller$/, function(cb){
+  this.Given(/^a "(.*)" route with "(.*)" method @ "(.*)" with a controller$/, function(auth, method, path, cb){
     this.app.addRoutes([{
-      method: 'post',
-      path: '/public/:ping',
+      method: method,
+      path: path,
+      auth: auth === 'private' ? true : false,
       controller: function(callback){
-        var allowedAttributes = ['cores', 'params', 'session', 'body'];
-        var len = 0;
-        for(var key in this){
-          len++;
-          expect(this[key]).to.not.be.undefined;
-        }
-        expect(len).to.equal(allowedAttributes.length);
-        expect(this.session.who).to.be.undefined;
-        expect(this.params.ping).to.equal('pong');
-        expect(this.params.query).to.equal('pong');
-        callback();
+        callback(null, {
+          auth: auth,
+          session: this.session,
+          body: this.body,
+          params: this.params,
+          cores: this.cores
+        });
       }
     }]);
     cb();
   });
 
-  this.Given(/^a private route with a controller$/, function(cb){
-    this.app.addRoutes([{
-      method: 'post',
-      path: '/private/:ping',
-      auth: true,
-      controller: function(callback){
-        var allowedAttributes = ['cores', 'params', 'session', 'body'];
-        var len = 0;
-        for(var key in this){
-          len++;
-          expect(this[key]).to.not.be.undefined;
-        }
-        expect(len).to.equal(allowedAttributes.length);
-        expect(this.session.who).to.equal('me');
-        expect(this.params.ping).to.equal('pong');
-        expect(this.params.query).to.equal('pong');
-        callback();
-      }
-    }]);
+  this.Then(/^the response should have a core named (.*)$/, function(name, cb){
+    expect(this.response.body.cores.get(name)).to.not.be.undefined;
     cb();
   });
 
-  this.Given(/^a new core$/, function(cb){
-    this.app.addCore('myCore', function(done){
-      done(null, {
-        ping: () => 'core response'
-      });
-    });
+  this.Then(/^the response should have a session (.*) equal to (.*)$/, function(key, value, cb){
+    expect(this.response.body.session[key]).to.equal(value);
+    cb();
+  });
+
+  this.Then(/^the response should have a param (.*) equal to (.*)$/, function(key, value, cb){
+    expect(this.response.body.params[key]).to.equal(value);
+    cb();
+  });
+
+  this.Then(/^the response should have a body field (.*) equal to (.*)$/, function(key, value, cb){
+    expect(this.response.body.body[key]).to.equal(value);
     cb();
   });
 
   this.When(/^I start yoke$/, function(cb){
-    this.app.start('8020', () => {
+    this.app.start(this.port, () => {
       cb();
     });
   });
 
-  this.When(/^call the public route$/, function(cb){
-    this.req = request.post('/public/pong?query=pong');
+  this.When(/^I post @ "(.*)" with body and querystring$/, function(path, cb){
+    this.req = this.request.post(path+'?query=pong');
     this.req.send({
       ping: 'pong'
     });
-    cb();
+    this.req.end((err, response) => {
+      expect(err).to.be.null;
+      this.response = response;
+      cb();
+    });
   });
 
-  this.When(/^call the private route$/, function(cb){
-    this.req = request.post('/private/pong?query=pong');
+  this.When(/^I post @ "(.*)" with body, querystring, and header$/, function(path, cb){
+    this.req = this.request.post(path+'?query=pong');
     this.req.set('ping', 'pong');
     this.req.send({
       ping: 'pong'
     });
-    cb();
-  });
-
-  this.Then(/^the context should be formated correctly$/, function(cb){
     this.req.end((err, response) => {
       expect(err).to.be.null;
-      expect(response.statusCode).to.equal(200);
+      this.response = response;
       cb();
     });
   });

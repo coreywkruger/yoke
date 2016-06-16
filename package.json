@@ -1,6 +1,6 @@
 {
   "name": "@gobold/yoke",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Bootstrap and API",
   "access": "restricted",
   "scripts": {
@@ -8,7 +8,7 @@
     "pre-commit-update": "node_modules/.bin/npm-update-outdated",
     "lint": "eslint --max-warnings 1065 --ext .js .",
     "fix-lint": "eslint --fix --ext .js .",
-    "test": "cucumber.js test/unit --require test"
+    "test": "cucumber.js test/unit --require test --port 8020"
   },
   "pre-commit": {
     "silent": false,
@@ -65,7 +65,8 @@
     "pre-commit": "^1.1.2",
     "pre-push": "^0.1.1",
     "rimraf": "^2.4.4",
-    "supertest": "^1.2.0"
+    "supertest": "^1.2.0",
+    "yargs": "^4.7.1"
   },
   "dependencies": {
     "bluebird": "^3.3.5",
