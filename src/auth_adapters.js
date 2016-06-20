@@ -2,11 +2,7 @@
 function HeaderAuthAdapter(context, header, method){
   this.header = header;
   this.method = method;
-  context.app.use(function(req, res, next){
-    context.allowedHeaders.push(header);
-    res.header('Access-Control-Allow-Headers', context.allowedHeaders.join(','));
-    next();
-  });
+  context.allowedHeaders.push(header);
 }
 
 HeaderAuthAdapter.prototype.authenticate = function(){
