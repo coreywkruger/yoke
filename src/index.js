@@ -72,7 +72,8 @@ App.prototype.start = function(port, cb) {
     if(this.logger){
       var logger = this.logger;
       this.app.use(function(req, res, next){
-        logger.info(req.method, req.path);
+        req.logger = logger;
+        req.logger.info(req.method, req.path);
         next();
       });
     }

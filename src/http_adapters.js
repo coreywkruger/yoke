@@ -14,10 +14,12 @@ ExpressRouter.prototype.addRoute = function(newRoute){
       body: req.body
     }, function(err, response){
       if(err){
+        req.logger.info(500, req.method, req.path, err);
         return res.status(500).json({
           error: err
         });
       }
+      req.logger.info(200, req.method, req.path);
       res.status(200).json(response);
     });
   });
