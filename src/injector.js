@@ -1,4 +1,4 @@
-import Bluebird from 'bluebird';
+import Promise from 'bluebird';
 
 export var Injector = function() {
   this.servicePromises = [];
@@ -6,37 +6,49 @@ export var Injector = function() {
 };
 
 // Add named service
-Injector.prototype.add = function(name, cb) {
-
-  // Must have unique services
-  if (this.services[name]) {
-    console.log(name, ' already is defined');
-    process.exit(1);
-  }
+Injector.prototype.inject = function(name, service) {
 
   // Create promise so we can later determine if the injector is ready
-  var servicePromise = new Bluebird((resolve) => {
-    cb((err, result) => {
-      if (err) {
-        console.log(err);
-        process.exit(1);
-      }
+  var servicePromises = new Promise((resolve, reject) => {
 
-      // Set service
-      this.services[name] = result;
-      resolve(result);
-    });
+    if (this.services[name]) {
+      reject(name+' already is defined');
+    }
+
+    if(service.then && service.catch){
+      service
+        .then(result => {
+          // Set service
+          this.services[name] = result;
+          resolve(result);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    } else if (typeof service === 'function') {
+      service((err, result) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        // Set service
+        this.services[name] = result;
+        resolve(result);
+      });
+    } else {
+      this.services[name] = service;
+      resolve(service);
+    }
   });
 
-  this.servicePromises.push(servicePromise);
+  this.servicePromises.push(servicePromises);
 };
 
-// Get named service
-Injector.prototype.get = function(name) {
-  return this.services[name];
+Injector.prototype.getInjections = function(){
+  return this.services;
 };
 
 // Return a promise that is fullfilled when all services are ready
 Injector.prototype.ready = function() {
-  return Bluebird.Promise.all(this.servicePromises);
+  return Promise.Promise.all(this.servicePromises);
 };

@@ -10,7 +10,7 @@ HeaderAuthAdapter.prototype.authenticate = function(){
   var header = this.header;
   return function(req, res, next){
     auth.call({
-      cores: req.dependencies
+      services: req.dependencies
     }, req.headers[header], function(err, who){
       if(err){
         return res.status(500).send(err);

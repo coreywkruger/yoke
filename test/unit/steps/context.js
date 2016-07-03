@@ -14,7 +14,7 @@ module.exports = function () {
   });
 
   this.Given(/^a (.*) auth adapter$/, function(authType, cb){
-    this.app.setAuthAdapter(authType, 'ping', function(header, callback){      
+    this.app.setAuthAdapter(authType, 'ping', function(header, callback){
       if(header !== 'pong') {
         return callback('failed auth');
       }
@@ -36,7 +36,7 @@ module.exports = function () {
           session: this.session,
           body: this.body,
           params: this.params,
-          cores: this.cores
+          services: this.services
         });
       }
     }]);
@@ -44,7 +44,7 @@ module.exports = function () {
   });
 
   this.Then(/^the response should have a core named (.*)$/, function(name, cb){
-    expect(this.response.body.cores.get(name)).to.not.be.undefined;
+    expect(this.response.body.services.get(name)).to.not.be.undefined;
     cb();
   });
 
@@ -64,7 +64,8 @@ module.exports = function () {
   });
 
   this.When(/^I start yoke$/, function(cb){
-    this.app.start(this.port, () => {
+    this.app.start(this.port, err => {
+      expect(err).to.be.null;
       cb();
     });
   });

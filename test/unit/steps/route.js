@@ -10,7 +10,8 @@ module.exports = function () {
         callback(null, {ping: auth});
       }
     }]);
-    this.app.start(this.port, () => {
+    this.app.start(this.port, err => {
+      expect(err).to.be.null;
       cb();
     });
   });

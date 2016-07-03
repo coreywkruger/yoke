@@ -11,13 +11,11 @@ var App = function() {
   this.allowedMethods = ['GET', 'PUT', 'POST', 'DELETE'];
   this.app = express();
   this.app.disable('x-powered-by');
-
 };
 
-// adds a dependency
-// injects dependency into controllers
-App.prototype.addCore = function(name, cb){
-  this.injector.add(name, cb);
+// injects dependencies
+App.prototype.inject = function(name, dependency){
+  this.injector.inject(name, dependency);
 };
 
 // sets adapter for authentication
@@ -48,10 +46,8 @@ App.prototype.addRoutes = function(routes){
 App.prototype.start = function(port, cb) {
   this.injector.ready().then(() => {
 
-    // headers and deps
     var allowedHeaders = this.allowedHeaders
-      , allowedMethods = this.allowedMethods
-      , injector = this.injector;
+      , allowedMethods = this.allowedMethods;
 
     this.app.use(bodyParser.urlencoded({extended: false}));
     this.app.use(bodyParser.json());
@@ -63,8 +59,9 @@ App.prototype.start = function(port, cb) {
       next();
     });
 
+    var dependencies = this.injector.getInjections();
     this.app.use(function(req, res, next){
-      req.dependencies = injector;
+      req.dependencies = dependencies;
       next();
     });
 
@@ -108,9 +105,13 @@ App.prototype.start = function(port, cb) {
     // start server
     this.server = this.app.listen(port, () => {
       if(cb) {
-        cb();
+        cb(null);
       }
     });
+  }).catch(err => {
+    if(cb) {
+      cb(err);
+    }
   });
 };
 
