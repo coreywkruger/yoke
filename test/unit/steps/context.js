@@ -14,7 +14,7 @@ module.exports = function () {
   });
 
   this.Given(/^a (.*) auth adapter$/, function(authType, cb){
-    this.app.setAuthAdapter(authType, 'ping', function(header, callback){
+    this.app.useHeaderAuth('ping', function(header, callback){
       if(header !== 'pong') {
         return callback('failed auth');
       }
