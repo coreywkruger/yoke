@@ -1,68 +1,74 @@
-## onboarding-api
-### Uses @gobold/yoke to bootstrap api
+### @gobold/yoke
 
 ###Bootstrap an API
 ```javascript
 // Initialize new yoke
 var yoke = new Yoke();
 
-/*
-* 1) choose auth adapter; set auth method and key
-* 2) choose routing adapter
-* 3) add route(s)
-*/
-yoke.setAuthAdapter('header', 'some-header-name', someAuthMethod);
+// 1) choose auth adapter; set auth method and key
+// 2) choose routing adapter
+// 3) add route(s)
+// authentication
+yoke.useHeaderAuth('some-new-header', someAuthMethod);
+
+// http routing adapter
 yoke.setHTTPAdapter('express');
-yoke.addRoute([{
+
+// add routes
+yoke.addRoutes([{
   method: 'get',
   path: '/ping',
   auth: true,
   controller: function(cb){
-    cb(null, 'pong');
+    /*
+    * this.session = ...
+    * this.body = ...
+    * this.params = ...
+    * this.services = ...
+    */
+    cb(null, 'response: pong');
   }
 }]);
 
-/*
-* start listening on port 8020 on localhost
-*/
-yoke.start('8020', function(){
+// someLogger.info( /* info stuff */ )
+// someLogger.Error( /* error stuff */ )
+// etc...
+yoke.setLogger(someLogger);
+
+// start listening on port 8020 on localhost
+yoke.start('8020', function(err){
   console.log('starting... ')
 });
 ```
 
-### Cores can be initialized, registered, and accessed like so:
+### Dependencies can be initialized and injected like so:
 
 ```javascript
-// Initialize new yoke
-var yoke = new Yoke();
-
-/*
-* attach new cores
-*/
-yoke.addCore('clientCore', function(done){
-  clientCore.initialize({
-    database: config.get('database')['payout_'+config.get('APP_ENV')]
-  }, function(err, core){
-    ...
-    done(null, core);
-  });
+// promise
+yoke.inject('PromiseService', PromiseService.then(res => {
+  /* do stuff */
+  return res;
+}));
+// callback
+yoke.inject('CallbackService', callback => {
+  /* get callback service */
+  callback(null, CallbackService);
 });
-  
-/* 
-* inject core into controllers
-*/
-yoke.addRoute([{
+// value
+yoke.inject('Value', Value);
+
+// dependencies are injected into controller scope
+yoke.addRoutes([{
   method: 'get',
   path: '/ping',
   controller: function(cb){
-    /* 
-    * use core inside controller 
-    */
-    this.core('clientCore').doThingHere( ... );
+
+    // use injected dependencies inside controller
+    this.services.someInjectedService.doThing( /* do thing */ );
   }
 }]);
 
-/* start server */
+// start listening
 yoke.start('8020', function(){
   console.log('starting... ');
 });

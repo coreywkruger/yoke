@@ -19,8 +19,8 @@ App.prototype.inject = function(name, dependency){
 };
 
 // sets adapter for authentication
-App.prototype.setAuthAdapter = function(adapterName, args, authenticate){
-  this.Auth = new AuthAdapters[adapterName](this, args, authenticate);
+App.prototype.useHeaderAuth = function(headerName, authenticate){
+  this.Auth = new AuthAdapters.header(this, headerName, authenticate);
 };
 
 // sets adapter for http requests
@@ -92,9 +92,11 @@ App.prototype.start = function(port, cb) {
     // authentication for private routes
     if(this.Auth){
       this.app.use(this.Auth.authenticate());
-      if(this.routers.private){
-        this.app.use(this.routers.private.router);
-      }
+    }
+
+    // private routes
+    if(this.routers.private){
+      this.app.use(this.routers.private.router);
     }
 
     // if nothing is found

@@ -21,15 +21,16 @@ Injector.prototype.inject = function(name, service) {
           // Set service
           this.services[name] = result;
           resolve(result);
+          return result;
         })
         .catch(err => {
           reject(err);
+          return err;
         });
     } else if (typeof service === 'function') {
       service((err, result) => {
         if (err) {
           reject(err);
-          return;
         }
         // Set service
         this.services[name] = result;
