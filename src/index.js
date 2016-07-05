@@ -11,6 +11,7 @@ var App = function() {
   this.allowedMethods = ['GET', 'PUT', 'POST', 'DELETE'];
   this.app = express();
   this.app.disable('x-powered-by');
+  this.pipes = [];
 };
 
 // injects dependencies
@@ -30,9 +31,8 @@ App.prototype.setHTTPAdapter = function(adapterName){
   this.routers.private = new HTTPAdapters[adapterName]();
 };
 
-// injects logger
-App.prototype.setLogger = function(logger){
-  this.logger = logger;
+App.prototype.addMiddleware = function(pipe){
+  this.pipes.push(pipe);
 };
 
 // appends routes to either public or private routers
@@ -65,14 +65,8 @@ App.prototype.start = function(port, cb) {
       next();
     });
 
-    // inject logger
-    if(this.logger){
-      var logger = this.logger;
-      this.app.use(function(req, res, next){
-        req.logger = logger;
-        req.logger.info(req.method, req.path);
-        next();
-      });
+    for(var i = 0 ; i < this.pipes.length ; i++){
+      this.app.use(this.pipes[i]);
     }
 
     // return 200 for options method
