@@ -12,7 +12,7 @@ Injector.prototype.inject = function(name, service) {
   var servicePromises = new Promise((resolve, reject) => {
 
     if (this.services[name]) {
-      reject(name+' already is defined');
+      reject(new Error(name+' already is defined'));
     }
 
     if(service.then && service.catch){
@@ -21,15 +21,17 @@ Injector.prototype.inject = function(name, service) {
           // Set service
           this.services[name] = result;
           resolve(result);
-          return result;
+          return Promise.resolve(result);
         })
         .catch(err => {
+          err.message = name + ' failed to resolve. ' + err.message;
           reject(err);
-          return err;
+          return Promise.reject(err);
         });
     } else if (typeof service === 'function') {
       service((err, result) => {
         if (err) {
+          err.message = name + ' failed to resolve. ' + err.message;
           reject(err);
         }
         // Set service
