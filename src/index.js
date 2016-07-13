@@ -2,11 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const HTTPAdapters = require('./http_adapters');
 const AuthAdapters = require('./auth_adapters');
-const Injector = require('./injector').Injector;
+const syrinj = require('syrinj');
 
 var App = function() {
   this.routers = {};
-  this.injector = new Injector();
+  this.injector = new syrinj();
   this.allowedHeaders = ['X-Requested-With', 'Content-Type', 'Access-Control-Allow-Credentials'];
   this.allowedMethods = ['GET', 'PUT', 'POST', 'DELETE'];
   this.app = express();
@@ -44,7 +44,7 @@ App.prototype.addRoutes = function(routes){
 
 // starts yoke server
 App.prototype.start = function(port, cb) {
-  this.injector.ready().then(() => {
+  this.injector.ready().then(dependencies => {
 
     var allowedHeaders = this.allowedHeaders
       , allowedMethods = this.allowedMethods;
@@ -59,7 +59,6 @@ App.prototype.start = function(port, cb) {
       next();
     });
 
-    var dependencies = this.injector.getInjections();
     this.app.use(function(req, res, next){
       req.dependencies = dependencies;
       next();

@@ -1,6 +1,6 @@
 {
   "name": "@gobold/yoke",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Bootstrap and API",
   "access": "restricted",
   "scripts": {
@@ -69,8 +69,8 @@
     "yargs": "^4.7.1"
   },
   "dependencies": {
-    "bluebird": "^3.3.5",
     "body-parser": "^1.15.0",
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "syrinj": "^1.0.8"
   }
 }
