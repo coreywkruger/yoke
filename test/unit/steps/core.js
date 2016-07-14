@@ -1,5 +1,4 @@
 const expect = require('chai').expect;
-const Bluebird = require('bluebird');
 
 module.exports = function () {
 
@@ -13,7 +12,7 @@ module.exports = function () {
   });
 
   this.Given(/^a \(promise\) core named (.*) with method {(.*)} that returns {(.*)}$/, function(coreName, method, response, cb){
-    var newCore = new Bluebird(resolve => {
+    var newCore = new Promise(resolve => {
       var core = {};
       core[method] = ping => response;
       resolve(core);
