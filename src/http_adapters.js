@@ -1,4 +1,5 @@
 const express = require('express');
+const _ = require('lodash');
 
 function ExpressRouter(){
   this.router = new express.Router();
@@ -14,7 +15,8 @@ ExpressRouter.prototype.addRoute = function(newRoute){
       body: req.body
     }, function(err, response){
       if(err){
-        return res.status(500).json({
+        var statuscode = (_.has(err, 'code')) ? err.code : 500;
+        return res.status(statuscode).json({
           error: err
         });
       }
