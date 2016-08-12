@@ -1,11 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const HTTPAdapters = require('./http_adapters');
-const AuthAdapters = require('./auth_adapters');
 const syrinj = require('syrinj');
 
 var App = function() {
-  this.routers = {};
   this.injector = new syrinj();
   this.allowedHeaders = ['X-Requested-With', 'Content-Type', 'Access-Control-Allow-Credentials'];
   this.allowedMethods = ['GET', 'PUT', 'POST', 'DELETE'];
@@ -19,16 +17,10 @@ App.prototype.inject = function(name, dependency){
   this.injector.inject(name, dependency);
 };
 
-// sets adapter for authentication
-App.prototype.useHeaderAuth = function(headerName, authenticate){
-  this.Auth = new AuthAdapters.header(this, headerName, authenticate);
-};
-
 // sets adapter for http requests
 // translates params into controller scope
 App.prototype.setHTTPAdapter = function(adapterName){
-  this.routers.public = new HTTPAdapters[adapterName]();
-  this.routers.private = new HTTPAdapters[adapterName]();
+  this.adapterName = adapterName;
 };
 
 App.prototype.addMiddleware = function(pipe){
@@ -37,9 +29,11 @@ App.prototype.addMiddleware = function(pipe){
 
 // appends routes to either public or private routers
 App.prototype.addRoutes = function(routes){
+  var adapter = new HTTPAdapters[this.adapterName]();
   for(var i = 0 ; i < routes.length ; i++){
-    this.routers[routes[i].auth ? 'private' : 'public'].addRoute(routes[i]);
+    adapter.addRoute(routes[i]);
   }
+  this.pipes.push(adapter.router);
 };
 
 // starts yoke server
@@ -64,10 +58,6 @@ App.prototype.start = function(port, cb) {
       next();
     });
 
-    for(var i = 0 ; i < this.pipes.length ; i++){
-      this.app.use(this.pipes[i]);
-    }
-
     // return 200 for options method
     this.app.use(function(req, res, next){
       if (req.method === 'OPTIONS') {
@@ -77,19 +67,8 @@ App.prototype.start = function(port, cb) {
       }
     });
 
-    // public routes
-    if(this.routers.public){
-      this.app.use(this.routers.public.router);
-    }
-
-    // authentication for private routes
-    if(this.Auth){
-      this.app.use(this.Auth.authenticate());
-    }
-
-    // private routes
-    if(this.routers.private){
-      this.app.use(this.routers.private.router);
+    for(var i = 0 ; i < this.pipes.length ; i++){
+      this.app.use(this.pipes[i]);
     }
 
     // if nothing is found
