@@ -1,6 +1,6 @@
 {
   "name": "@gobold/yoke",
-  "version": "4.0.0",
+  "version": "5.0.0-pre.1",
   "description": "Bootstrap and API",
   "access": "restricted",
   "scripts": {

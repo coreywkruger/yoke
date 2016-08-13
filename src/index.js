@@ -38,7 +38,7 @@ App.prototype.addRoutes = function(routes){
 
 // starts yoke server
 App.prototype.start = function(port, cb) {
-  this.injector.ready().then(dependencies => {
+  this.injector.ready().then(services => {
 
     var allowedHeaders = this.allowedHeaders
       , allowedMethods = this.allowedMethods;
@@ -54,7 +54,7 @@ App.prototype.start = function(port, cb) {
     });
 
     this.app.use(function(req, res, next){
-      req.dependencies = dependencies;
+      req.services = services;
       next();
     });
 
