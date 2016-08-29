@@ -71,8 +71,17 @@ App.prototype.start = function(port, cb) {
       this.app.use(this.pipes[i]);
     }
 
+    this.app.use(function(error, req, res, next){
+      if(res.headersSent){
+        return next(error);
+      }
+      if(error instanceof Error || error.error){
+        return res.status(500).json({error});
+      }
+    });
+
     // if nothing is found
-    this.app.use((req, res) => {
+    this.app.use(function(req, res){
       res.sendStatus(404);
     });
 
