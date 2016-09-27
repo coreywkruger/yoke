@@ -21,20 +21,15 @@ module.exports = function () {
     cb();
   });
 
-  this.Given(/^a "(.*)" route with "(.*)" method @ "(.*)" with a controller that uses core (.*)$/, function(auth, method, path, coreName, cb){
+  this.Given(/^a route with "(.*)" method @ "(.*)" with a controller that uses core (.*)$/, function(method, path, coreName, cb){
     this.app.addRoutes([{
       method: method,
       path: path,
-      auth: auth === 'private' ? true : false,
       controller: function(callback){
         callback(null, this.services[coreName].ping());
       }
     }]);
-    this.app.start(this.port, err => {
-      expect(err).to.be.null;
-      this.req = this.request.get(path);
-      cb();
-    });
+    cb();
   });
 
   this.Then(/^the response should contain "(.*)"$/, function(response, cb){

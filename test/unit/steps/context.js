@@ -25,14 +25,12 @@ module.exports = function () {
     cb();
   });
 
-  this.Given(/^a "(.*)" route with "(.*)" method @ "(.*)" with a controller$/, function(auth, method, path, cb){
+  this.Given(/^a route with "(.*)" method @ "(.*)" with a controller$/, function(method, path, cb){
     this.app.addRoutes([{
       method: method,
       path: path,
-      auth: auth === 'private' ? true : false,
       controller: function(callback){
         callback(null, {
-          auth: auth,
           session: this.session,
           body: this.body,
           params: this.params,
@@ -63,8 +61,8 @@ module.exports = function () {
     cb();
   });
 
-  this.When(/^I start yoke$/, function(cb){
-    this.app.start(this.port, err => {
+  this.When(/^I listen on port {(.*)}$/, function(port, cb){
+    this.app.start(port, err => {
       expect(err).to.be.null;
       cb();
     });

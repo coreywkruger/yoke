@@ -1,19 +1,15 @@
 const expect = require('chai').expect;
 
 module.exports = function () {
-  this.Given(/^a "(.*)" route with "(.*)" method @ "(.*)"$/, function(auth, method, path, cb){
+  this.Given(/^a route with "(.*)" method @ "(.*)"$/, function(method, path, cb){
     this.app.addRoutes([{
       method: method,
-      auth: auth === 'private' ? true : false,
       path: path,
       controller: function(callback){
-        callback(null, {ping: auth});
+        callback(null, {ping: 'pong'});
       }
     }]);
-    this.app.start(this.port, err => {
-      expect(err).to.be.null;
-      cb();
-    });
+    cb();
   });
 
   this.When(/^I "(.*)" @ "(.*)"$/, function(method, path, cb){

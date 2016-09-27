@@ -6,10 +6,16 @@ function ExpressRouter(){
 }
 
 ExpressRouter.prototype.addRoute = function(newRoute){
-  this.router[newRoute.method](newRoute.path, function(req, res){
+  var methods = [];
+  if( newRoute.middleware && 
+      newRoute.middleware.length && 
+      newRoute.middleware.length > 0){
+    methods = newRoute.middleware;
+  }
+  this.router[newRoute.method](newRoute.path, methods, function(req, res){
     var params = Object.assign({}, req.params, req.query);
     newRoute.controller.call({
-      services: req.dependencies,
+      services: req.services,
       session: req.session,
       params: params,
       body: req.body
