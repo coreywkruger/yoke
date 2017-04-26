@@ -1,6 +1,6 @@
 ### @gobold/yoke
 
-###Bootstrap an API
+#### Bootstrap an API
 ```javascript
 // Initialize new yoke
 var yoke = new Yoke();
